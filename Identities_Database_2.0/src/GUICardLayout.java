@@ -1,4 +1,10 @@
-
+/**
+ * File: GUICardLayout.java
+ * This class contains the GUI for creating and modifying a database
+ * Proper Javadoc are missing, they will be added later
+ * @author Tarek Solamy (Alsolame)
+ * @version 2.0 10/30/2022
+ */
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
@@ -69,12 +75,14 @@ public class GUICardLayout {
 
     private String databaseName;
     private Database workingDatabase;
-    private Database TempSearch;
+    private Database tempDatabase;
+
+    //private Database TempSearch;
 
     private DefaultListModel<ListPersons> model;
     private DefaultListModel<String> listModel;
     private  JPopupMenu popupMenu;
-    private JMenuItem jmi1, jmi2;
+    private JMenuItem jmi1, jmi2, jmi3; // for display databases pop up menu
     private ArrayList<String []> starting;
     private String[][] viewingData;
     private DefaultTableModel viewElementsModel;
@@ -89,6 +97,7 @@ public class GUICardLayout {
     boolean startOutside;
     int startIndex = -1;
     private MouseEvent popup; // for display database popup menu
+    private boolean loadedFile;
 
 
     public GUICardLayout() {
@@ -126,10 +135,18 @@ public class GUICardLayout {
             @Override
             public void actionPerformed(ActionEvent e){
                 String name = JOptionPane.showInputDialog(null, "Please enter the name of the database.");
+                if(name.equals("")){
+                    JOptionPane.showMessageDialog(null, "Please enter a valid name.", "Error: No name provided", JOptionPane.ERROR_MESSAGE );
+                    return;
+                }
                 workingDatabase= new Database(name);
                 //System.out.println(name);
                 try {
+                    loadedFile=true;
                     workingDatabase.load(name);
+                    System.out.println(Arrays.deepToString(workingDatabase.mapToList().toArray()));
+                    //viewingData= workingDatabase.mapToList().toArray(String[][]::new);
+
                     bodyLayout.removeAll();
                     bodyLayout.add(databasePanel);
                     bodyLayout.repaint();
@@ -144,6 +161,7 @@ public class GUICardLayout {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
+
                     Database.loadAllDatabases();
 
                     bodyLayout.removeAll();
@@ -160,7 +178,7 @@ public class GUICardLayout {
                     popupMenu.add(new JPopupMenu.Separator());
                     popupMenu.add(jmi2 = new JMenuItem("Remove"));
                     popupMenu.add(new JPopupMenu.Separator());
-                    popupMenu.add(jmi2 = new JMenuItem("Rename"));
+                    popupMenu.add(jmi3 = new JMenuItem("Rename"));
 
                     MouseListener mouseListener = new MouseAdapter() {
                         public void mouseClicked(MouseEvent mouseEvent) {
@@ -181,7 +199,7 @@ public class GUICardLayout {
                                         fileName= sb.toString();
                                         workingDatabase= new Database(fileName);
                                         workingDatabase.load(fileName);
-
+                                        //loadedFile=true;
                                     } catch (IOException ex) {
                                         throw new RuntimeException(ex);
                                     }
@@ -190,7 +208,6 @@ public class GUICardLayout {
                                     bodyLayout.repaint();
                                     bodyLayout.revalidate();
                                     databaseTitle.setText(fileName);
-
 
                                 }
                             }
@@ -231,9 +248,9 @@ public class GUICardLayout {
 
                                 String fileName;
                                 int index = databasesList.locationToIndex(popup.getPoint());
+                                popup= null;
                                 //if (index >= 0) {
                                     Object o = databasesList.getModel().getElementAt(index);
-                                    System.out.println("Double-clicked on: " + o.toString());
                                     try {
                                         StringBuffer sb= new StringBuffer(o.toString());
                                         //invoking the method
@@ -248,7 +265,7 @@ public class GUICardLayout {
                                     } catch (IOException ex) {
                                         throw new RuntimeException(ex);
                                     }
-                                listModel.remove(databasesList.locationToIndex(popup.getPoint()));
+                                //
                                 bodyLayout.removeAll();
                                 bodyLayout.add(databasePanel);
                                 bodyLayout.repaint();
@@ -257,12 +274,14 @@ public class GUICardLayout {
 
                         }
                     });
+
                     jmi2.addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
 
                             String fileName;
                             int index = databasesList.locationToIndex(popup.getPoint());
+                            popup=null;
                             //if (index >= 0) {
                             Object o = databasesList.getModel().getElementAt(index);
                             System.out.println("Double-clicked on: " + o.toString());
@@ -273,53 +292,49 @@ public class GUICardLayout {
 
                             }
                             fileName= sb.toString();
-                            //workingDatabase= new Database(fileName);
+                            System.out.println(fileName);
                             Database.removeDatabase(fileName);
+                            listModel.remove(databasesList.locationToIndex(popup.getPoint()));
+                        }
+                    });
+                    jmi3.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+
+                            String fileName;
+                            int index = databasesList.locationToIndex(popup.getPoint());
+                            popup= null;
+                            //if (index >= 0) {
+                            Object o = databasesList.getModel().getElementAt(index);
+                            StringBuffer sb= new StringBuffer(o.toString());
+                            String newName = JOptionPane.showInputDialog(null, "Please enter the new name.");
+                            if(newName.equals("")){
+                                JOptionPane.showMessageDialog(null, "Please enter a valid name.", "Error: No name provided", JOptionPane.ERROR_MESSAGE );
+                                return;
+                            }
+
+                            Database.renameFIle(sb.toString(), newName);
 
                             bodyLayout.removeAll();
-                            bodyLayout.add(databasePanel);
+                            bodyLayout.add(loadAllDatabases);
                             bodyLayout.repaint();
                             bodyLayout.revalidate();
-                            databaseTitle.setText(fileName);
-                            //  }
+                            Vector<String> vectors = null;
+                            try {
+                                vectors = new Vector<String>(Database.loadAllDatabases());
+                            } catch (IOException ex) {
+                                throw new RuntimeException(ex);
+                            }
+                            listModel.removeAllElements();
+                            listModel.addAll(vectors);
+                            databasesList.setModel(listModel);
+
                         }
                     });
 
-                    //listModel = new DefaultListModel<>();
-                    //ArrayList<String> newList = Database.loadAllDatabases();
-                    //DefaultListModel<String> newModel = new DefaultListModel<>();;
-                    //newModel.addElement("one");
-                    //databasesList= new JList<>(newModel);
-                    //databasesList.setCellRenderer(new DefaultListCellRenderer());
-                    //databasesList.setVisible(true);
-                    //System.out.println(Arrays.deepToString(newList.toArray()));
-
-                    //databasesList = new JList<String>(newList.toArray(new String[]{}));
-                    /*
-                    for(int i = 0; i < filler.length - 1; i++) {
-                        fillerListModel.addElement(filler[i]);
-                    }
-                    jList1.setModel(fillerListModel);// this line produces a warning
-
-
-                     */
-
-                    //databasesList.setModel(model);
                 } catch (IOException ex) {
                     throw new RuntimeException(ex);
                 }
-                //System.out.println(Arrays.toString(results.toArray()));
-
-                //databasesList = new JList<String>(results.toArray(new String[results.size()]));
-
-                // databasesList = new JList<String>(results.toArray(new String[results.size()]));
-
-                //databasesList.setModel(listModel);
-
-                //databasesList.setModel(model);
-                //results.toArray();
-
-
             }
         });
 
@@ -481,6 +496,9 @@ public class GUICardLayout {
                     return;
                 }
                 try {
+                   // System.out.println(Arrays.deepToString(workingDatabase.mapToList().toArray()));
+                    System.out.print(workingDatabase.checkCountry(countryName));
+
                     if (workingDatabase.checkCountry(countryName)){
                         executionsPanel.removeAll();
                         executionsPanel.add(countryCard);
@@ -1262,10 +1280,51 @@ public class GUICardLayout {
 
             }
         });
-        DisplayAllSearchField.addActionListener(new ActionListener() {
-
+        databaseSearch.addKeyListener(new KeyAdapter() {
+            /**
+             * Invoked when a key has been typed.
+             * This event occurs when a key press is followed by a key release.
+             *
+             * @param e
+             */
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void keyTyped(KeyEvent e) {
+                super.keyTyped(e);
+                String filter = databaseSearch.getText();
+                try {
+                    listModel((DefaultListModel<String>)databasesList.getModel(), filter);
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
+
+
+            }
+
+            private void listModel(DefaultListModel<String> model, String filter) throws IOException {
+                for (String s : Database.loadAllDatabases()) {
+                    if (!s.startsWith(filter)) {
+                        if (model.contains(s)) {
+                            model.removeElement(s);
+                        }
+                    } else {
+                        if (!model.contains(s)) {
+                            model.addElement(s);
+                        }
+                    }
+                }
+
+            }
+        });
+        DisplayAllSearchField.addKeyListener(new KeyAdapter() {
+            /**
+             * Invoked when a key has been typed.
+             * This event occurs when a key press is followed by a key release.
+             *
+             * @param e
+             */
+            @Override
+            public void keyTyped(KeyEvent e) {
+                super.keyTyped(e);
                 viewingData= workingDatabase.mapToList().toArray(String[][]::new);
                 String[] columnNames = { "First Name", "Middle Name", "Last Name", "Alias", " Date of Birth", "Country of Birth",
                         "City of Birth", " Town of Birth", "Race", "Religion"};
@@ -1284,18 +1343,18 @@ public class GUICardLayout {
                         System.out.println("Bad regex pattern");
                     }
                 }
-
-        }
-    });
-        CountryCardSearch.addActionListener(new ActionListener() {
+            }
+        });
+        CountryCardSearch.addKeyListener(new KeyAdapter() {
             /**
-             * Invoked when an action occurs.
+             * Invoked when a key has been typed.
+             * This event occurs when a key press is followed by a key release.
              *
-             * @param e the event to be processed
+             * @param e
              */
             @Override
-            public void actionPerformed(ActionEvent e) {
-
+            public void keyTyped(KeyEvent e) {
+                super.keyTyped(e);
                 viewingData= workingDatabase.displayBasedOnCountry(tempName).toArray(String[][]::new) ;
                 String[] columnNames = { "First Name", "Middle Name", "Last Name", "Alias", " Date of Birth", "Country of Birth",
                         "City of Birth", " Town of Birth", "Race", "Religion"};
@@ -1315,19 +1374,18 @@ public class GUICardLayout {
                         System.out.println("Bad regex pattern");
                     }
                 }
-
-
-
             }
         });
-        CityCardSearch.addActionListener(new ActionListener() {
+        CityCardSearch.addKeyListener(new KeyAdapter() {
             /**
-             * Invoked when an action occurs.
+             * Invoked when a key has been typed.
+             * This event occurs when a key press is followed by a key release.
              *
-             * @param e the event to be processed
+             * @param e
              */
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void keyTyped(KeyEvent e) {
+                super.keyTyped(e);
                 viewingData= workingDatabase.displayBasedOnCity(tempName).toArray(String[][]::new) ;
                 String[] columnNames = { "First Name", "Middle Name", "Last Name", "Alias", " Date of Birth", "Country of Birth",
                         "City of Birth", " Town of Birth", "Race", "Religion"};
@@ -1349,14 +1407,16 @@ public class GUICardLayout {
                 }
             }
         });
-        raceCardSearch.addActionListener(new ActionListener() {
+        raceCardSearch.addKeyListener(new KeyAdapter() {
             /**
-             * Invoked when an action occurs.
+             * Invoked when a key has been typed.
+             * This event occurs when a key press is followed by a key release.
              *
-             * @param e the event to be processed
+             * @param e
              */
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void keyTyped(KeyEvent e) {
+                super.keyTyped(e);
                 viewingData= workingDatabase.displayBasedOnRace(tempName).toArray(String[][]::new) ;
                 String[] columnNames = { "First Name", "Middle Name", "Last Name", "Alias", " Date of Birth", "Country of Birth",
                         "City of Birth", " Town of Birth", "Race", "Religion"};
@@ -1378,14 +1438,16 @@ public class GUICardLayout {
                 }
             }
         });
-        religionSearchCard.addActionListener(new ActionListener() {
+        religionSearchCard.addKeyListener(new KeyAdapter() {
             /**
-             * Invoked when an action occurs.
+             * Invoked when a key has been typed.
+             * This event occurs when a key press is followed by a key release.
              *
-             * @param e the event to be processed
+             * @param e
              */
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void keyTyped(KeyEvent e) {
+                super.keyTyped(e);
                 viewingData= workingDatabase.displayBasedOnReligion(tempName).toArray(String[][]::new) ;
                 String[] columnNames = { "First Name", "Middle Name", "Last Name", "Alias", " Date of Birth", "Country of Birth",
                         "City of Birth", " Town of Birth", "Race", "Religion"};

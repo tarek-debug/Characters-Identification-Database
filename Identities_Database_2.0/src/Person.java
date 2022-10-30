@@ -1,4 +1,10 @@
-
+/**
+ * File: GUICardLayout.java
+ * This class creates the Person will all the variables needed and the setters and getters required
+ * Proper Javadoc are missing, they will be added later
+ * @author Tarek Solamy (Alsolame)
+ * @version 2.0 10/30/2022
+ */
 
 
 public class Person {

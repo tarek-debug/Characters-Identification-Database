@@ -1,3 +1,11 @@
+/**
+ * File: GUICardLayout.java
+ * This class contains the database and all the methods that are used to modify it
+ * Proper Javadoc are missing, they will be added later
+ * @author Tarek Solamy (Alsolame)
+ * @version 2.0 10/30/2022
+ */
+
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -12,8 +20,20 @@ import java.util.regex.Pattern;
 public class Database {
 
     private Person character;
+
     private TreeMap<String, List<Person>> directory;
     private TreeMap<String, List<Person>> searchDirectory;
+    private TreeMap<String, List<Person>> tempDirectory;
+    private boolean loadedFile;
+    public void setName(String name) {
+        this.name = name;
+
+    }
+    public void setDirectory(TreeMap<String, List<Person>> directory) {
+        this.directory = directory;
+    }
+
+
     private String name;
     Vector<ListPersons> items;
     private ArrayList<String []> units;
@@ -30,6 +50,7 @@ public class Database {
         units= new ArrayList<String []> ();
 
     }
+
 
     public TreeMap<String, List<Person>> getDirectory() {
         return directory;
@@ -123,13 +144,13 @@ public class Database {
             while (itr.hasNext()) {
                 Person current = (Person) itr.next();
                 {
+                    //String m= current.getCountryOfBirth().replaceAll("\\P{Print}","");
                     if (current.getCountryOfBirth().equals(country)) {
                         return true;
                     }
                 }
 
             }
-
             //System.out.println(entry.getKey() + "->" + entry.getValue());
         }
         return false;
@@ -421,8 +442,6 @@ public class Database {
         //return newOne;
         return false;
     }
-
-    // finish load method
     public boolean load(String fileName) throws IOException {
         //Database loadedDatabase = new Database(name);
         //loadedDatabase.setName(fileName);
@@ -431,12 +450,12 @@ public class Database {
         List<Person> newList = new ArrayList<>();
         Person toFind= new Person();
         //newList.add(newPerson);
-        Path path = Paths.get("Databases\\" + name +".txt");
+        Path path = Paths.get("Databases\\" + fileName +".txt");
         //String[] words=null;  //Intialize the word Array
 
         if(Files.exists(path)) {
-            name = fileName;
-            directory = new TreeMap<String, List<Person>>();
+            this.name = fileName;
+            this.directory = new TreeMap<String, List<Person>>();
             File toLoad = new File("Databases\\" + fileName + ".txt");
             BufferedReader br = new BufferedReader(new FileReader(toLoad));
 
@@ -449,12 +468,54 @@ public class Database {
             Person toLoadFromFile = new Person();
             Scanner scanner = new Scanner(toLoad);
 
-            /*
+
+            String text = scanner.useDelimiter("\\A").next();
+            scanner.close();
+            textExtractor (toLoadFromFile, text);
+            Set<Map.Entry<String, List<Person>>> entries = directory.entrySet();
+           // for (Map.Entry<String, List<Person>> entry : entries) {
+            //    System.out.println(entry.getKey() + "->" + entry.getValue());
+            //}
+            //System.out.println(toLoadFromFile.toString());
+
+        }
+        return false;
+
+    }
+    // finish load method
+    /*
+    public boolean load(String fileName) throws IOException {
+        //Database loadedDatabase = new Database(name);
+        //loadedDatabase.setName(fileName);
+        //List<String> results = new ArrayList<String>();
+
+        List<Person> newList = new ArrayList<>();
+        Person toFind= new Person();
+        //newList.add(newPerson);
+        Path path = Paths.get("Databases\\" + fileName +".txt");
+        //String[] words=null;  //Intialize the word Array
+
+        if(Files.exists(path)) {
+            this.name = fileName;
+            this.directory = new TreeMap<String, List<Person>>();
+            File toLoad = new File("Databases\\" + fileName + ".txt");
+            BufferedReader br = new BufferedReader(new FileReader(toLoad));
+
+            // Declaring a string variable
+            String st;
+            int lineNumber = 1;
+            boolean foundElement = false;
+            // Condition holds true till
+            // there is character in a string
+            Person toLoadFromFile = new Person();
+            Scanner scanner = new Scanner(toLoad);
+
+
             s.useDelimiter(":;");
             while(s.hasNext()) {
                 System.out.println(s.next());
             }
-            */
+
             String text = scanner.useDelimiter("\\A").next();
             scanner.close();
             textExtractor (toLoadFromFile, text);
@@ -468,6 +529,11 @@ public class Database {
         return false;
 
     }
+    */
+
+
+
+
     private void textExtractor (Person toLoadTo, String text){
         // Regex to extract the string
         // between two delimiters
@@ -488,43 +554,43 @@ public class Database {
         while (m.find())
         {
             if (counter==1){
-                toLoadTo.setFirstName(m.group(1));
+                toLoadTo.setFirstName(m.group(1).substring(1));
 
                 counter++;
             } else if (counter==2){
-                toLoadTo.setMiddleName(m.group(1));
+                toLoadTo.setMiddleName(m.group(1).substring(1));
 
                 counter++;
             }else if (counter==3){
-                toLoadTo.setLastName(m.group(1));
+                toLoadTo.setLastName(m.group(1).substring(1));
 
                 counter++;
             }else if (counter==4){
-                toLoadTo.setAlias(m.group(1));
+                toLoadTo.setAlias(m.group(1).substring(1));
 
                 counter++;
             }else if (counter==5){
-                toLoadTo.setBirthDate(m.group(1));
+                toLoadTo.setBirthDate(m.group(1).substring(1));
 
                 counter++;
             }else if (counter==6){
-                toLoadTo.setCountryOfBirth(m.group(1));
+                toLoadTo.setCountryOfBirth(m.group(1).substring(1));
 
                 counter++;
             }else if (counter==7){
-                toLoadTo.setCityOfBirth(m.group(1));
+                toLoadTo.setCityOfBirth(m.group(1).substring(1));
 
                 counter++;
             }else if (counter==8){
-                toLoadTo.setTownOfBirth(m.group(1));
+                toLoadTo.setTownOfBirth(m.group(1).substring(1));
 
                 counter++;
             }else if (counter==9){
-                toLoadTo.setRace(m.group(1));
+                toLoadTo.setRace(m.group(1).substring(1));
 
                 counter++;
             }else if (counter==10){
-                toLoadTo.setReligion(m.group(1));
+                toLoadTo.setReligion(m.group(1).substring(1));
                 insert(toLoadTo.getFirstName() , toLoadTo);
                 //System.out.println(toLoadTo.toString());
                 toLoadTo= new Person();
@@ -657,6 +723,21 @@ public class Database {
         */
 
     }
+    public static void renameFIle(String oldName, String newName){
+        Path oldFile
+                = Paths.get("Databases\\"+ oldName);
+
+        try {
+            Files.move(oldFile, oldFile.resolveSibling(
+                    newName + ".txt"));
+            System.out.println("File Successfully Rename");
+        }
+        catch (IOException e) {
+            System.out.println("operation failed");
+        }
+    }
+
+
 
      public Person fillInformation(JPanel myPanel){
         JTextField firstName = new JTextField(5);

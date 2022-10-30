@@ -1,3 +1,12 @@
+/**
+ * File: GUICardLayout.java
+ * This class creates a list of the person class, which will be used in the Tree Map in the Database class
+ * Proper Javadoc are missing, they will be added later
+ * @author Tarek Solamy (Alsolame)
+ * @version 2.0 10/30/2022
+ */
+
+
 public class ListPersons {
         private String name;
         private Person character;
