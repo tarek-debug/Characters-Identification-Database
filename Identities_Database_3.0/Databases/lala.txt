@@ -1,0 +1,13 @@
+Data entry : 1
+[First Name: wdef.
+Middle Name: rgrff.
+Last Name: asdr.
+Alias: rgth.
+Date of Birth: awdf.
+Country of Birth: rgrg.
+City of Birth: asdwd.
+Town of Birth: frgr.
+Race: awdwf.
+Religion: rgrg.
+]
+==========================
